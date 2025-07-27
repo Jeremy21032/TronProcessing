@@ -1,37 +1,34 @@
 class TronGame {
-  ArrayList<PVector> trail;
-  PVector pos;
-  float angle; // dirección de la moto (en radianes)
-  float speed;
-  float maxSpeed = 7;
-  float minSpeed = 2;
+  ArrayList<PVector> trail1;
+  ArrayList<PVector> trail2;
+  PVector pos1, pos2;
+  float angle1, angle2;
+  int dir1, dir2;
+  Moto moto1, moto2;
+  color color1, color2;
   boolean gameOver = false;
   boolean gameStarted = false;
-
-  // Dirección actual: 0=arriba, 1=derecha, 2=abajo, 3=izquierda
-  int currentDir = 0;
-
-  // Color de la moto y rastro
-  color myColor;
+  String loser = "";
 
   // Variables 3D
+  float speed = 4;
   float cameraY = 0;
   float cameraAngle = 0;
-  float terrainHeight = 0;
   float glowIntensity = 0;
-
-  // Cámara en primera persona
   float cameraDistance = 50;
   float cameraHeight = 30;
-  float cameraAngleOffset = 0.3; // Diagonal hacia arriba
-
-  // Efectos 3D
+  float cameraAngleOffset = 0.3;
   ArrayList<PVector> particles;
   float time = 0;
+  int framesToNextTurn1 = 0;
+  int framesToNextTurn2 = 0;
 
   TronGame(color c) {
-    myColor = c;
+    color1 = c;
+    color2 = color(255, 120, 0); // naranja clásico para la segunda moto
     reset();
+    moto1 = new Moto(pos1, angle1, color1);
+    moto2 = new Moto(pos2, angle2, color2);
   }
 
   void updateAndDraw() {
@@ -44,82 +41,89 @@ class TronGame {
   void drawWaitingScreen() {
     setupFirstPersonView();
     draw3DTerrain();
-    draw3DTrail();
-    draw3DBike();
+    draw3DTrail(trail1, color1);
+    draw3DTrail(trail2, color2);
+    draw3DBike(moto1, trail1.size());
+    draw3DBike(moto2, trail2.size());
     updateParticles();
     drawParticles();
     drawWaitingUI();
   }
 
   void updateGame() {
-    // Movimiento en la dirección actual (no suave)
-    float vx = 0;
-    float vy = 0;
-    if (currentDir == 0) { // arriba
-      vx = 0;
-      vy = -speed;
-      angle = -HALF_PI;
-    } else if (currentDir == 1) { // derecha
-      vx = speed;
-      vy = 0;
-      angle = 0;
-    } else if (currentDir == 2) { // abajo
-      vx = 0;
-      vy = speed;
-      angle = HALF_PI;
-    } else if (currentDir == 3) { // izquierda
-      vx = -speed;
-      vy = 0;
-      angle = PI;
+    // Movimiento automático moto1
+    float vx1 = 0, vy1 = 0;
+    if (dir1 == 0) { vx1 = 0; vy1 = -speed; angle1 = -HALF_PI; }
+    else if (dir1 == 1) { vx1 = speed; vy1 = 0; angle1 = 0; }
+    else if (dir1 == 2) { vx1 = 0; vy1 = speed; angle1 = HALF_PI; }
+    else if (dir1 == 3) { vx1 = -speed; vy1 = 0; angle1 = PI; }
+    pos1.add(vx1, vy1);
+    if (framesToNextTurn1 <= 0) {
+      int giro = int(random(2));
+      if (dir1 == 0 || dir1 == 2) dir1 = (giro == 0) ? 1 : 3;
+      else dir1 = (giro == 0) ? 0 : 2;
+      framesToNextTurn1 = int(random(40, 120));
+    } else framesToNextTurn1--;
+    moto1.pos = pos1;
+    moto1.angle = angle1;
+    if (trail1.size() == 0 || dist(pos1.x, pos1.y, trail1.get(trail1.size()-1).x, trail1.get(trail1.size()-1).y) > 2) {
+      trail1.add(pos1.copy());
     }
-    pos.add(vx, vy);
 
-    // Actualizar efectos 3D
+    // Movimiento automático moto2
+    float vx2 = 0, vy2 = 0;
+    if (dir2 == 0) { vx2 = 0; vy2 = -speed; angle2 = -HALF_PI; }
+    else if (dir2 == 1) { vx2 = speed; vy2 = 0; angle2 = 0; }
+    else if (dir2 == 2) { vx2 = 0; vy2 = speed; angle2 = HALF_PI; }
+    else if (dir2 == 3) { vx2 = -speed; vy2 = 0; angle2 = PI; }
+    pos2.add(vx2, vy2);
+    if (framesToNextTurn2 <= 0) {
+      int giro = int(random(2));
+      if (dir2 == 0 || dir2 == 2) dir2 = (giro == 0) ? 1 : 3;
+      else dir2 = (giro == 0) ? 0 : 2;
+      framesToNextTurn2 = int(random(40, 120));
+    } else framesToNextTurn2--;
+    moto2.pos = pos2;
+    moto2.angle = angle2;
+    if (trail2.size() == 0 || dist(pos2.x, pos2.y, trail2.get(trail2.size()-1).x, trail2.get(trail2.size()-1).y) > 2) {
+      trail2.add(pos2.copy());
+    }
+
+    // Colisión moto1 con su propio rastro
+    for (int i = 0; i < trail1.size()-20; i++) {
+      PVector t = trail1.get(i);
+      if (dist(pos1.x, pos1.y, t.x, t.y) < 8) { gameOver = true; loser = "Moto 1"; return; }
+    }
+    // Colisión moto2 con su propio rastro
+    for (int i = 0; i < trail2.size()-20; i++) {
+      PVector t = trail2.get(i);
+      if (dist(pos2.x, pos2.y, t.x, t.y) < 8) { gameOver = true; loser = "Moto 2"; return; }
+    }
+    // Colisión cruzada
+    for (int i = 0; i < trail2.size(); i++) {
+      PVector t = trail2.get(i);
+      if (dist(pos1.x, pos1.y, t.x, t.y) < 8) { gameOver = true; loser = "Moto 1"; return; }
+    }
+    for (int i = 0; i < trail1.size(); i++) {
+      PVector t = trail1.get(i);
+      if (dist(pos2.x, pos2.y, t.x, t.y) < 8) { gameOver = true; loser = "Moto 2"; return; }
+    }
+
+    // Efectos visuales
     time += 0.1;
     cameraY = sin(time * 0.5) * 20;
     cameraAngle = sin(time * 0.3) * 0.1;
     glowIntensity = sin(time * 2) * 0.3 + 0.7;
-
-    // Solo agrega al trail si avanzó suficiente
-    if (trail.size() == 0 || dist(pos.x, pos.y, trail.get(trail.size()-1).x, trail.get(trail.size()-1).y) > 2) {
-      trail.add(pos.copy());
-    }
-
-    // Sin límites de bordes
-
-    // Colisión con el propio rastro
-    for (int i = 0; i < trail.size()-20; i++) {
-      PVector trailPos = trail.get(i);
-      if (dist(pos.x, pos.y, trailPos.x, trailPos.y) < 8) {
-        gameOver = true;
-        return;
-      }
-    }
   }
 
   void drawGame() {
-    // Configurar vista 3D en primera persona
     setupFirstPersonView();
-    
-    // Dibujar terreno 3D
     draw3DTerrain();
-    
-    // Dibuja el rastro 3D con glow
-    draw3DTrail();
-    
-    // Dibuja la moto 3D
-    draw3DBike();
-    
-    // Efectos de partículas
-    updateParticles();
-    drawParticles();
-    
-    // Game over overlay
-    if (gameOver) {
-      drawGameOver();
-    }
-    
-    // UI overlay
+    draw3DTrail(trail1, color1);
+    draw3DTrail(trail2, color2);
+    draw3DBike(moto1, trail1.size());
+    draw3DBike(moto2, trail2.size());
+    if (gameOver) drawGameOver();
     drawUI();
   }
   
@@ -135,8 +139,8 @@ class TronGame {
     rotateY(0.1);
     
     // Posicionar cámara detrás y arriba de la moto
-    float camX = pos.x - width/2;
-    float camY = pos.y - height/2;
+    float camX = pos1.x - width/2;
+    float camY = pos1.y - height/2;
     float camZ = -cameraDistance;
     float camYOffset = -cameraHeight;
     
@@ -168,7 +172,7 @@ class TronGame {
     popMatrix();
   }
   
-  void draw3DTrail() {
+  void draw3DTrail(ArrayList<PVector> trail, color c) {
     if (trail.size() < 2) return;
     
     pushMatrix();
@@ -176,7 +180,7 @@ class TronGame {
     
     // Rastro principal 3D
     strokeWeight(12);
-    stroke(myColor, 150 * glowIntensity);
+    stroke(c, 150 * glowIntensity);
     noFill();
     
     beginShape();
@@ -189,7 +193,7 @@ class TronGame {
     
     // Efecto de glow 3D
     strokeWeight(20);
-    stroke(myColor, 50 * glowIntensity);
+    stroke(c, 50 * glowIntensity);
     beginShape();
     for (int i = 0; i < trail.size(); i++) {
       PVector p = trail.get(i);
@@ -201,42 +205,17 @@ class TronGame {
     popMatrix();
   }
   
-  void draw3DBike() {
+  void draw3DBike(Moto m, int trailSize) {
     pushMatrix();
     translate(-width/2, -height/2, 0);
-    translate(pos.x, pos.y, trail.size() * 0.5);
-    
-    // Cuerpo de la moto 3D
-    pushMatrix();
-    rotateZ(angle);
-    
-    // Motor principal
-    fill(myColor, 200 * glowIntensity);
-    noStroke();
-    box(20, 8, 6);
-    
-    // Ruedas
-    fill(50, 50, 50);
-    translate(-8, 0, 0);
-    sphere(4);
-    translate(16, 0, 0);
-    sphere(4);
-    
-    // Efecto de luz
-    fill(255, 255, 255, 100 * glowIntensity);
-    translate(-8, -2, 3);
-    sphere(2);
-    
-    popMatrix();
-    
-    // Efecto de partículas de escape
+    m.draw3D(trailSize * 0.5);
+    // Efecto de partículas de escape (si quieres mantenerlo)
     if (gameStarted) {
       for (int i = 0; i < 3; i++) {
-        float px = pos.x + random(-5, 5);
-        float py = pos.y + random(-5, 5);
-        float pz = trail.size() * 0.5 + random(-2, 2);
-        
-        fill(myColor, 100);
+        float px = pos1.x + random(-5, 5);
+        float py = pos1.y + random(-5, 5);
+        float pz = trailSize * 0.5 + random(-2, 2);
+        fill(color1, 100);
         noStroke();
         pushMatrix();
         translate(px, py, pz);
@@ -244,7 +223,6 @@ class TronGame {
         popMatrix();
       }
     }
-    
     popMatrix();
   }
   
@@ -256,8 +234,8 @@ class TronGame {
     // Agregar nuevas partículas solo si el juego está activo
     if (gameStarted && random(1) < 0.3) {
       particles.add(new PVector(
-        pos.x + random(-20, 20),
-        pos.y + random(-20, 20),
+        pos1.x + random(-20, 20),
+        pos1.y + random(-20, 20),
         random(-50, 50)
       ));
     }
@@ -298,11 +276,11 @@ class TronGame {
     rect(0, 0, width, height);
     textAlign(CENTER, CENTER);
     textSize(24);
-    fill(myColor);
+    fill(color1);
     text("Presiona ESPACIO para comenzar", width/2, height/2);
     textSize(16);
-    fill(myColor);
-    text("Flechas: Izq/Der gira, Arriba acelera, Abajo frena", width/2, height/2 + 40);
+    fill(color1);
+    text("Modo espectador: duelo de motos automáticas", width/2, height/2 + 40);
     
     hint(ENABLE_DEPTH_TEST);
   }
@@ -316,11 +294,11 @@ class TronGame {
     rect(0, 0, width, height);
     textAlign(CENTER, CENTER);
     textSize(32);
-    fill(myColor);
+    fill(color1);
     text("¡GAME OVER!", width/2, height/2 - 50);
-    textSize(16);
-    fill(myColor);
-    text("Presiona ESPACIO para reiniciar o R para cambiar color", width/2, height/2 + 20);
+    textSize(20);
+    fill(color1);
+    text("Perdió: " + loser, width/2, height/2 + 20);
     
     hint(ENABLE_DEPTH_TEST);
   }
@@ -330,45 +308,17 @@ class TronGame {
     hint(DISABLE_DEPTH_TEST);
     camera();
     
-    fill(myColor);
-    textSize(12);
+    fill(color1);
+    textSize(16);
     textAlign(LEFT);
-    text("Flechas: Izq/Der gira, Arriba acelera, Abajo frena", 10, 20);
-    text("Velocidad: " + nf(speed, 0, 1), 10, 40);
+    text("Modo espectador: duelo de motos automáticas", 10, 20);
     
     hint(ENABLE_DEPTH_TEST);
   }
 
+  // Eliminar keyPressed: el usuario no puede controlar nada
   void keyPressed(char key, int keyCode) {
-    if (gameOver && key == ' ') {
-      reset();
-      return;
-    }
-    if (gameOver || !gameStarted) return;
-
-    // Solo se puede girar en perpendicular a la dirección actual
-    // 0=arriba, 1=derecha, 2=abajo, 3=izquierda
-    if (currentDir == 0 || currentDir == 2) { // vertical
-      if (keyCode == LEFT) {
-        currentDir = 3; // izquierda
-      } else if (keyCode == RIGHT) {
-        currentDir = 1; // derecha
-      } else if (keyCode == UP) {
-        speed = min(speed + 0.5, maxSpeed);
-      } else if (keyCode == DOWN) {
-        speed = max(speed - 0.5, minSpeed);
-      }
-    } else if (currentDir == 1 || currentDir == 3) { // horizontal
-      if (keyCode == UP) {
-        currentDir = 0; // arriba
-      } else if (keyCode == DOWN) {
-        currentDir = 2; // abajo
-      } else if (keyCode == LEFT) {
-        speed = max(speed - 0.5, minSpeed);
-      } else if (keyCode == RIGHT) {
-        speed = min(speed + 0.5, maxSpeed);
-      }
-    }
+    // No hacer nada
   }
   
   void startGame() {
@@ -376,15 +326,24 @@ class TronGame {
   }
 
   void reset() {
-    pos = new PVector(width/2, height-100);
-    currentDir = 0;
-    angle = -HALF_PI;
-    speed = 4;
-    trail = new ArrayList<PVector>();
-    trail.add(pos.copy());
+    // Moto 1: izquierda abajo, va hacia arriba
+    pos1 = new PVector(width/3, height-100);
+    angle1 = -HALF_PI;
+    dir1 = 0;
+    // Moto 2: derecha abajo, va hacia arriba
+    pos2 = new PVector(2*width/3, height-100);
+    angle2 = -HALF_PI;
+    dir2 = 0;
+    trail1 = new ArrayList<PVector>();
+    trail2 = new ArrayList<PVector>();
+    trail1.add(pos1.copy());
+    trail2.add(pos2.copy());
     gameOver = false;
     gameStarted = false;
     particles = new ArrayList<PVector>();
     time = 0;
-  }
+    framesToNextTurn1 = int(random(40, 120));
+    framesToNextTurn2 = int(random(40, 120));
+    loser = "";
+}
 } 
