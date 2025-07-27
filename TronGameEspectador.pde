@@ -1,4 +1,4 @@
-class TronGame {
+class TronGameEspectador {
   ArrayList<PVector> trail1;
   ArrayList<PVector> trail2;
   PVector pos1, pos2;
@@ -23,7 +23,7 @@ class TronGame {
   int framesToNextTurn1 = 0;
   int framesToNextTurn2 = 0;
 
-  TronGame(color c) {
+  TronGameEspectador(color c) {
     color1 = c;
     color2 = color(255, 120, 0); // naranja clásico para la segunda moto
     reset();
@@ -316,9 +316,8 @@ class TronGame {
     hint(ENABLE_DEPTH_TEST);
   }
 
-  // Eliminar keyPressed: el usuario no puede controlar nada
   void keyPressed(char key, int keyCode) {
-    // No hacer nada
+    // No hacer nada en modo espectador
   }
   
   void startGame() {
@@ -345,5 +344,5 @@ class TronGame {
     framesToNextTurn1 = int(random(40, 120));
     framesToNextTurn2 = int(random(40, 120));
     loser = "";
-}
+  }
 } 
