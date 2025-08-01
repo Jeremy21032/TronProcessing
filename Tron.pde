@@ -13,7 +13,12 @@ color[] colores = {color(0,255,255), color(255,120,0), color(0,255,100), color(2
 int lastColorIndex = -1;
 
 void setup() {
-  size(800, 600, P3D);
+  size(600, 600, P3D);
+  // Centrar la ventana en la pantalla
+  //surface.setLocation((displayWidth - width) / 2, (displayHeight - height) / 2);
+  // O alternativamente, usar fullScreen() para pantalla completa
+  fullScreen(P3D);
+  
   logo = new TronLogo(width/2, height/2 - 60, 400);
   startButton = new StartButton(width/2, height/2 + 100, 180, 50, "INICIAR");
   espectadorButton = new MenuButton(width/2, height/2 - 50, 200, 60, "MODO ESPECTADOR");
@@ -49,31 +54,26 @@ void draw() {
 }
 
 void drawMenu() {
-  // Fondo con efecto 3D
   pushMatrix();
   translate(width/2, height/2, 0);
-  
-  // Efecto de rotación sutil
   float time = frameCount * 0.02;
   rotateY(sin(time * 0.5) * 0.05);
   rotateX(sin(time * 0.3) * 0.02);
   
-  // Título del menú
   textAlign(CENTER, CENTER);
   textSize(32);
   fill(0, 255, 255, 255);
   text("SELECCIONA EL MODO", 0, -150);
   
   popMatrix();
-  
-  // Mostrar botones en 2D para que funcionen los clics
+
   espectadorButton.display();
   controladoButton.display();
 }
 
 void mousePressed() {
   if (estado == 0 && logo.isFinished() && startButton.isMouseOver()) {
-    estado = 2; // Ir al menú de selección
+    estado = 2;
   } else if (estado == 2) {
     if (espectadorButton.isMouseOver()) {
       estado = 3; // Modo espectador
@@ -95,16 +95,16 @@ void keyPressed() {
   } else if (estado == 3) {
     gameEspectador.keyPressed(key, keyCode);
     if (gameEspectador.gameOver && (key == 'r' || key == 'R')) {
-      motoColor = color(255,120,0); // naranja clásico
+      motoColor = color(255,120,0);
       gameEspectador = new TronGameEspectador(motoColor);
-      estado = 2; // Volver al menú
+      estado = 2;
     }
   } else if (estado == 4) {
     gameControlado.keyPressed(key, keyCode);
     if (gameControlado.gameOver && (key == 'r' || key == 'R')) {
-      motoColor = color(255,120,0); // naranja clásico
+      motoColor = color(255,120,0);
       gameControlado = new TronGameControlado(motoColor);
-      estado = 2; // Volver al menú
+      estado = 2;
     }
   }
 }

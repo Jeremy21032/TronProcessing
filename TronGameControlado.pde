@@ -23,7 +23,7 @@ class TronGameControlado {
   // Cámara en primera persona
   float cameraDistance = 50;
   float cameraHeight = 30;
-  float cameraAngleOffset = 0.3; // Diagonal hacia arriba
+  float cameraAngleOffset = 0.3;
 
   // Efectos 3D
   ArrayList<PVector> particles;
@@ -55,19 +55,19 @@ class TronGameControlado {
     // Movimiento en la dirección actual (no suave)
     float vx = 0;
     float vy = 0;
-    if (currentDir == 0) { // arriba
+    if (currentDir == 0) {
       vx = 0;
       vy = -speed;
       angle = -HALF_PI;
-    } else if (currentDir == 1) { // derecha
+    } else if (currentDir == 1) {
       vx = speed;
       vy = 0;
       angle = 0;
-    } else if (currentDir == 2) { // abajo
+    } else if (currentDir == 2) {
       vx = 0;
       vy = speed;
       angle = HALF_PI;
-    } else if (currentDir == 3) { // izquierda
+    } else if (currentDir == 3) {
       vx = -speed;
       vy = 0;
       angle = PI;
@@ -85,9 +85,6 @@ class TronGameControlado {
       trail.add(pos.copy());
     }
 
-    // Sin límites de bordes
-
-    // Colisión con el propio rastro
     for (int i = 0; i < trail.size()-20; i++) {
       PVector trailPos = trail.get(i);
       if (dist(pos.x, pos.y, trailPos.x, trailPos.y) < 8) {
@@ -100,41 +97,27 @@ class TronGameControlado {
   void drawGame() {
     // Configurar vista 3D en primera persona
     setupFirstPersonView();
-    
-    // Dibujar terreno 3D
     draw3DTerrain();
-    
-    // Dibuja el rastro 3D con glow
     draw3DTrail();
-    
-    // Dibuja la moto 3D
     draw3DBike();
-    
-    // Efectos de partículas
     updateParticles();
     drawParticles();
     
-    // Game over overlay
     if (gameOver) {
       drawGameOver();
     }
     
-    // UI overlay
     drawUI();
   }
   
   void setupFirstPersonView() {
-    // Configurar perspectiva 3D
     perspective(PI/3.0, float(width)/float(height), 10, 2000);
     
-    // Posicionar cámara en primera persona diagonal
     translate(width/2, height/2, 0);
     
-    // Rotar para vista diagonal hacia arriba
     rotateX(-cameraAngleOffset + cameraAngle);
     rotateY(0.1);
     
-    // Posicionar cámara detrás y arriba de la moto
     float camX = pos.x - width/2;
     float camY = pos.y - height/2;
     float camZ = -cameraDistance;
@@ -149,7 +132,7 @@ class TronGameControlado {
     translate(0, 200, 0);
     rotateX(PI/2);
     // Grid 3D
-    stroke(255, 255, 255, 80); // blanco
+    stroke(255, 255, 255, 80);
     strokeWeight(1);
     noFill();
     int gridSize = 50;
@@ -182,7 +165,7 @@ class TronGameControlado {
     beginShape();
     for (int i = 0; i < trail.size(); i++) {
       PVector p = trail.get(i);
-      float z = i * 0.5; // Profundidad basada en posición en el trail
+      float z = i * 0.5;
       vertex(p.x, p.y, z);
     }
     endShape();
@@ -290,7 +273,6 @@ class TronGameControlado {
   }
   
   void drawWaitingUI() {
-    // Resetear vista 2D para overlay
     hint(DISABLE_DEPTH_TEST);
     camera();
     
@@ -346,7 +328,6 @@ class TronGameControlado {
     }
     if (gameOver || !gameStarted) return;
 
-    // Solo se puede girar en perpendicular a la dirección actual
     // 0=arriba, 1=derecha, 2=abajo, 3=izquierda
     if (currentDir == 0 || currentDir == 2) { // vertical
       if (keyCode == LEFT) {

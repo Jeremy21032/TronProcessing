@@ -25,7 +25,7 @@ class TronGameEspectador {
 
   TronGameEspectador(color c) {
     color1 = c;
-    color2 = color(255, 120, 0); // naranja clásico para la segunda moto
+    color2 = color(255, 120, 0);
     reset();
     moto1 = new Moto(pos1, angle1, color1);
     moto2 = new Moto(pos2, angle2, color2);
@@ -109,7 +109,6 @@ class TronGameEspectador {
       if (dist(pos2.x, pos2.y, t.x, t.y) < 8) { gameOver = true; loser = "Moto 2"; return; }
     }
 
-    // Efectos visuales
     time += 0.1;
     cameraY = sin(time * 0.5) * 20;
     cameraAngle = sin(time * 0.3) * 0.1;
@@ -128,22 +127,14 @@ class TronGameEspectador {
   }
   
   void setupFirstPersonView() {
-    // Configurar perspectiva 3D
     perspective(PI/3.0, float(width)/float(height), 10, 2000);
-    
-    // Posicionar cámara en primera persona diagonal
     translate(width/2, height/2, 0);
-    
-    // Rotar para vista diagonal hacia arriba
     rotateX(-cameraAngleOffset + cameraAngle);
     rotateY(0.1);
-    
-    // Posicionar cámara detrás y arriba de la moto
     float camX = pos1.x - width/2;
     float camY = pos1.y - height/2;
     float camZ = -cameraDistance;
     float camYOffset = -cameraHeight;
-    
     translate(-camX, -camY + camYOffset, camZ);
   }
   
@@ -152,8 +143,7 @@ class TronGameEspectador {
     pushMatrix();
     translate(0, 200, 0);
     rotateX(PI/2);
-    // Grid 3D
-    stroke(255, 255, 255, 80); // blanco
+    stroke(255, 255, 255, 80);
     strokeWeight(1);
     noFill();
     int gridSize = 50;
@@ -177,8 +167,7 @@ class TronGameEspectador {
     
     pushMatrix();
     translate(-width/2, -height/2, 0);
-    
-    // Rastro principal 3D
+
     strokeWeight(12);
     stroke(c, 150 * glowIntensity);
     noFill();
@@ -186,7 +175,7 @@ class TronGameEspectador {
     beginShape();
     for (int i = 0; i < trail.size(); i++) {
       PVector p = trail.get(i);
-      float z = i * 0.5; // Profundidad basada en posición en el trail
+      float z = i * 0.5;
       vertex(p.x, p.y, z);
     }
     endShape();
@@ -209,7 +198,7 @@ class TronGameEspectador {
     pushMatrix();
     translate(-width/2, -height/2, 0);
     m.draw3D(trailSize * 0.5);
-    // Efecto de partículas de escape (si quieres mantenerlo)
+    // Efecto de partículas de escape
     if (gameStarted) {
       for (int i = 0; i < 3; i++) {
         float px = pos1.x + random(-5, 5);
@@ -317,7 +306,6 @@ class TronGameEspectador {
   }
 
   void keyPressed(char key, int keyCode) {
-    // No hacer nada en modo espectador
   }
   
   void startGame() {

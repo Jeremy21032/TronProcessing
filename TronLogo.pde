@@ -1,9 +1,9 @@
 class TronLogo {
   float x, y, s;
-  ArrayList<PVector[]> segments; // Cada segmento es un par de puntos (inicio, fin)
+  ArrayList<PVector[]> segments;
   int currentSegment = 0;
-  float progress = 0; // 0 a 1 en el segmento actual
-  float speed = 4; // pixeles por frame
+  float progress = 0;
+  float speed = 4;
   boolean finished = false;
   
   // Variables 3D
@@ -20,8 +20,8 @@ class TronLogo {
 
   void buildSegments() {
     // T
-    segments.add(new PVector[] {new PVector(-270, 0), new PVector(-170, 0)}); // horizontal izquierda a derecha
-    segments.add(new PVector[] {new PVector(-220, 0), new PVector(-220, -80)}); // vertical hacia arriba
+    segments.add(new PVector[] {new PVector(-270, 0), new PVector(-170, 0)});
+    segments.add(new PVector[] {new PVector(-220, 0), new PVector(-220, -80)});
     // R
     segments.add(new PVector[] {new PVector(-150, 40), new PVector(-150, -80)});
     segments.add(new PVector[] {new PVector(-150, -80), new PVector(-80, -80)});
@@ -57,13 +57,11 @@ class TronLogo {
     rotateY(sin(time * 0.5) * 0.1);
     rotateX(sin(time * 0.3) * 0.05);
     
-    // 1. Dibuja todos los segmentos completados con efecto 3D
     for (int i = 0; i < currentSegment; i++) {
       PVector[] seg = segments.get(i);
       draw3DSegment(seg[0], seg[1]);
     }
     
-    // 2. Dibuja el segmento actual (parcial) con efectos 3D
     if (!finished && currentSegment < segments.size()) {
       PVector[] seg = segments.get(currentSegment);
       PVector start = seg[0];
@@ -76,14 +74,13 @@ class TronLogo {
       draw3DSegment(start, moto);
       
       // Moto 3D con rastro corto
-      float trailLen = 24; // longitud del rastro
+      float trailLen = 24;
       float segLen = dist(start.x, start.y, moto.x, moto.y);
       float t0 = max(0, segLen - trailLen) / segLen;
       float tx = lerp(start.x, moto.x, t0);
       float ty = lerp(start.y, moto.y, t0);
       draw3DSegment(new PVector(tx, ty), moto);
       
-      // Moto 3D
       draw3DBike(moto);
     }
     
@@ -112,21 +109,15 @@ class TronLogo {
   void draw3DBike(PVector moto) {
     pushMatrix();
     translate(moto.x, moto.y, 0);
-    
-    // Cuerpo de la moto 3D
     noStroke();
-    
-    // Motor principal con glow
     for (int i = 18; i >= 8; i -= 2) {
       fill(0, 255, 255, map(i, 8, 18, 120, 10) * glowIntensity);
       ellipse(0, 0, i, i);
     }
     
-    // Núcleo brillante
     fill(255, 255, 255, 200 * glowIntensity);
     ellipse(0, 0, 7, 7);
     
-    // Efecto de partículas
     for (int i = 0; i < 3; i++) {
       float px = random(-10, 10);
       float py = random(-10, 10);
@@ -143,7 +134,7 @@ class TronLogo {
     PVector start = seg[0];
     PVector end = seg[1];
     float segLen = dist(start.x, start.y, end.x, end.y);
-    float step = speed / (s/600.0); // ajusta velocidad al tamaño
+    float step = speed / (s/600.0);
     progress += step / segLen;
     if (progress >= 1) {
       currentSegment++;
