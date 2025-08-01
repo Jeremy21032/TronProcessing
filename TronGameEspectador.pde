@@ -10,7 +10,6 @@ class TronGameEspectador {
   boolean gameStarted = false;
   String loser = "";
 
-  // Variables 3D
   float speed = 4;
   float cameraY = 0;
   float cameraAngle = 0;
@@ -51,7 +50,6 @@ class TronGameEspectador {
   }
 
   void updateGame() {
-    // Movimiento automático moto1
     float vx1 = 0, vy1 = 0;
     if (dir1 == 0) { vx1 = 0; vy1 = -speed; angle1 = -HALF_PI; }
     else if (dir1 == 1) { vx1 = speed; vy1 = 0; angle1 = 0; }
@@ -70,7 +68,6 @@ class TronGameEspectador {
       trail1.add(pos1.copy());
     }
 
-    // Movimiento automático moto2
     float vx2 = 0, vy2 = 0;
     if (dir2 == 0) { vx2 = 0; vy2 = -speed; angle2 = -HALF_PI; }
     else if (dir2 == 1) { vx2 = speed; vy2 = 0; angle2 = 0; }
@@ -89,17 +86,14 @@ class TronGameEspectador {
       trail2.add(pos2.copy());
     }
 
-    // Colisión moto1 con su propio rastro
     for (int i = 0; i < trail1.size()-20; i++) {
       PVector t = trail1.get(i);
       if (dist(pos1.x, pos1.y, t.x, t.y) < 8) { gameOver = true; loser = "Moto 1"; return; }
     }
-    // Colisión moto2 con su propio rastro
     for (int i = 0; i < trail2.size()-20; i++) {
       PVector t = trail2.get(i);
       if (dist(pos2.x, pos2.y, t.x, t.y) < 8) { gameOver = true; loser = "Moto 2"; return; }
     }
-    // Colisión cruzada
     for (int i = 0; i < trail2.size(); i++) {
       PVector t = trail2.get(i);
       if (dist(pos1.x, pos1.y, t.x, t.y) < 8) { gameOver = true; loser = "Moto 1"; return; }
@@ -139,7 +133,6 @@ class TronGameEspectador {
   }
   
   void draw3DTerrain() {
-    // Terreno base
     pushMatrix();
     translate(0, 200, 0);
     rotateX(PI/2);
@@ -180,7 +173,6 @@ class TronGameEspectador {
     }
     endShape();
     
-    // Efecto de glow 3D
     strokeWeight(20);
     stroke(c, 50 * glowIntensity);
     beginShape();
@@ -198,7 +190,6 @@ class TronGameEspectador {
     pushMatrix();
     translate(-width/2, -height/2, 0);
     m.draw3D(trailSize * 0.5);
-    // Efecto de partículas de escape
     if (gameStarted) {
       for (int i = 0; i < 3; i++) {
         float px = pos1.x + random(-5, 5);
@@ -220,7 +211,6 @@ class TronGameEspectador {
       particles = new ArrayList<PVector>();
     }
     
-    // Agregar nuevas partículas solo si el juego está activo
     if (gameStarted && random(1) < 0.3) {
       particles.add(new PVector(
         pos1.x + random(-20, 20),
@@ -229,7 +219,6 @@ class TronGameEspectador {
       ));
     }
     
-    // Actualizar partículas existentes
     for (int i = particles.size() - 1; i >= 0; i--) {
       PVector p = particles.get(i);
       p.z += 2;
@@ -257,7 +246,6 @@ class TronGameEspectador {
   }
   
   void drawWaitingUI() {
-    // Resetear vista 2D para overlay
     hint(DISABLE_DEPTH_TEST);
     camera();
     
@@ -275,7 +263,6 @@ class TronGameEspectador {
   }
 
   void drawGameOver() {
-    // Resetear vista 2D para overlay
     hint(DISABLE_DEPTH_TEST);
     camera();
     
@@ -293,7 +280,6 @@ class TronGameEspectador {
   }
   
   void drawUI() {
-    // Resetear vista 2D para UI
     hint(DISABLE_DEPTH_TEST);
     camera();
     
@@ -313,11 +299,9 @@ class TronGameEspectador {
   }
 
   void reset() {
-    // Moto 1: izquierda abajo, va hacia arriba
     pos1 = new PVector(width/3, height-100);
     angle1 = -HALF_PI;
     dir1 = 0;
-    // Moto 2: derecha abajo, va hacia arriba
     pos2 = new PVector(2*width/3, height-100);
     angle2 = -HALF_PI;
     dir2 = 0;

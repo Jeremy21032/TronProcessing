@@ -1,31 +1,26 @@
 class TronGameControlado {
   ArrayList<PVector> trail;
   PVector pos;
-  float angle; // dirección de la moto (en radianes)
+  float angle;
   float speed;
   float maxSpeed = 7;
   float minSpeed = 2;
   boolean gameOver = false;
   boolean gameStarted = false;
 
-  // Dirección actual: 0=arriba, 1=derecha, 2=abajo, 3=izquierda
   int currentDir = 0;
 
-  // Color de la moto y rastro
   color myColor;
 
-  // Variables 3D
   float cameraY = 0;
   float cameraAngle = 0;
   float terrainHeight = 0;
   float glowIntensity = 0;
 
-  // Cámara en primera persona
   float cameraDistance = 50;
   float cameraHeight = 30;
   float cameraAngleOffset = 0.3;
 
-  // Efectos 3D
   ArrayList<PVector> particles;
   float time = 0;
 
@@ -52,7 +47,6 @@ class TronGameControlado {
   }
 
   void updateGame() {
-    // Movimiento en la dirección actual (no suave)
     float vx = 0;
     float vy = 0;
     if (currentDir == 0) {
@@ -74,13 +68,11 @@ class TronGameControlado {
     }
     pos.add(vx, vy);
 
-    // Actualizar efectos 3D
     time += 0.1;
     cameraY = sin(time * 0.5) * 20;
     cameraAngle = sin(time * 0.3) * 0.1;
     glowIntensity = sin(time * 2) * 0.3 + 0.7;
 
-    // Solo agrega al trail si avanzó suficiente
     if (trail.size() == 0 || dist(pos.x, pos.y, trail.get(trail.size()-1).x, trail.get(trail.size()-1).y) > 2) {
       trail.add(pos.copy());
     }
@@ -95,7 +87,6 @@ class TronGameControlado {
   }
 
   void drawGame() {
-    // Configurar vista 3D en primera persona
     setupFirstPersonView();
     draw3DTerrain();
     draw3DTrail();
@@ -127,11 +118,9 @@ class TronGameControlado {
   }
   
   void draw3DTerrain() {
-    // Terreno base
     pushMatrix();
     translate(0, 200, 0);
     rotateX(PI/2);
-    // Grid 3D
     stroke(255, 255, 255, 80);
     strokeWeight(1);
     noFill();
@@ -157,7 +146,6 @@ class TronGameControlado {
     pushMatrix();
     translate(-width/2, -height/2, 0);
     
-    // Rastro principal 3D
     strokeWeight(12);
     stroke(myColor, 150 * glowIntensity);
     noFill();
@@ -170,7 +158,6 @@ class TronGameControlado {
     }
     endShape();
     
-    // Efecto de glow 3D
     strokeWeight(20);
     stroke(myColor, 50 * glowIntensity);
     beginShape();
@@ -189,30 +176,25 @@ class TronGameControlado {
     translate(-width/2, -height/2, 0);
     translate(pos.x, pos.y, trail.size() * 0.5);
     
-    // Cuerpo de la moto 3D
     pushMatrix();
     rotateZ(angle);
     
-    // Motor principal
     fill(myColor, 200 * glowIntensity);
     noStroke();
     box(20, 8, 6);
     
-    // Ruedas
     fill(50, 50, 50);
     translate(-8, 0, 0);
     sphere(4);
     translate(16, 0, 0);
     sphere(4);
     
-    // Efecto de luz
     fill(255, 255, 255, 100 * glowIntensity);
     translate(-8, -2, 3);
     sphere(2);
     
     popMatrix();
     
-    // Efecto de partículas de escape
     if (gameStarted) {
       for (int i = 0; i < 3; i++) {
         float px = pos.x + random(-5, 5);
@@ -236,7 +218,6 @@ class TronGameControlado {
       particles = new ArrayList<PVector>();
     }
     
-    // Agregar nuevas partículas solo si el juego está activo
     if (gameStarted && random(1) < 0.3) {
       particles.add(new PVector(
         pos.x + random(-20, 20),
@@ -245,7 +226,6 @@ class TronGameControlado {
       ));
     }
     
-    // Actualizar partículas existentes
     for (int i = particles.size() - 1; i >= 0; i--) {
       PVector p = particles.get(i);
       p.z += 2;
@@ -290,7 +270,6 @@ class TronGameControlado {
   }
 
   void drawGameOver() {
-    // Resetear vista 2D para overlay
     hint(DISABLE_DEPTH_TEST);
     camera();
     
@@ -308,7 +287,6 @@ class TronGameControlado {
   }
   
   void drawUI() {
-    // Resetear vista 2D para UI
     hint(DISABLE_DEPTH_TEST);
     camera();
     
@@ -328,22 +306,21 @@ class TronGameControlado {
     }
     if (gameOver || !gameStarted) return;
 
-    // 0=arriba, 1=derecha, 2=abajo, 3=izquierda
-    if (currentDir == 0 || currentDir == 2) { // vertical
+    if (currentDir == 0 || currentDir == 2) {
       if (keyCode == LEFT) {
-        currentDir = 3; // izquierda
+        currentDir = 3;
       } else if (keyCode == RIGHT) {
-        currentDir = 1; // derecha
+        currentDir = 1;
       } else if (keyCode == UP) {
         speed = min(speed + 0.5, maxSpeed);
       } else if (keyCode == DOWN) {
         speed = max(speed - 0.5, minSpeed);
       }
-    } else if (currentDir == 1 || currentDir == 3) { // horizontal
+    } else if (currentDir == 1 || currentDir == 3) {
       if (keyCode == UP) {
-        currentDir = 0; // arriba
+        currentDir = 0;
       } else if (keyCode == DOWN) {
-        currentDir = 2; // abajo
+        currentDir = 2;
       } else if (keyCode == LEFT) {
         speed = max(speed - 0.5, minSpeed);
       } else if (keyCode == RIGHT) {

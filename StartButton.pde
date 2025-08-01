@@ -13,7 +13,6 @@ class StartButton {
   }
   
   void display() {
-    // Actualizar efectos 3D
     time += 0.1;
     glowIntensity = sin(time * 2) * 0.3 + 0.7;
     pushMatrix();

@@ -6,7 +6,6 @@ class TronLogo {
   float speed = 4;
   boolean finished = false;
   
-  // Variables 3D
   float time = 0;
   float glowIntensity = 0;
 
@@ -19,41 +18,33 @@ class TronLogo {
   }
 
   void buildSegments() {
-    // T
     segments.add(new PVector[] {new PVector(-270, 0), new PVector(-170, 0)});
     segments.add(new PVector[] {new PVector(-220, 0), new PVector(-220, -80)});
-    // R
     segments.add(new PVector[] {new PVector(-150, 40), new PVector(-150, -80)});
     segments.add(new PVector[] {new PVector(-150, -80), new PVector(-80, -80)});
     segments.add(new PVector[] {new PVector(-80, -80), new PVector(-80, -20)});
     segments.add(new PVector[] {new PVector(-80, -20), new PVector(-150, -20)});
     segments.add(new PVector[] {new PVector(-80, -20), new PVector(-60, 0)});
-    // O (rectángulo)
     segments.add(new PVector[] {new PVector(-30, -80), new PVector(60, -80)});
     segments.add(new PVector[] {new PVector(60, -80), new PVector(60, 0)});
     segments.add(new PVector[] {new PVector(60, 0), new PVector(-30, 0)});
     segments.add(new PVector[] {new PVector(-30, 0), new PVector(-30, -80)});
-    // N
     segments.add(new PVector[] {new PVector(90, 0), new PVector(90, -80)});
     segments.add(new PVector[] {new PVector(90, -80), new PVector(170, 0)});
     segments.add(new PVector[] {new PVector(170, 0), new PVector(170, -80)});
-    // Apóstrofe
     segments.add(new PVector[] {new PVector(-290, -40), new PVector(-270, -40)});
     segments.add(new PVector[] {new PVector(-290, -40), new PVector(-290, -20)});
   }
 
   void display() {
-    // Actualizar efectos 3D
     time += 0.05;
     glowIntensity = sin(time * 2) * 0.3 + 0.7;
     
-    // Configurar vista 3D para el logo
     pushMatrix();
     translate(x, y, 0);
     float scaleF = s/600.0;
     scale(scaleF);
     
-    // Efecto de rotación 3D sutil
     rotateY(sin(time * 0.5) * 0.1);
     rotateX(sin(time * 0.3) * 0.05);
     
@@ -70,10 +61,8 @@ class TronLogo {
       float ny = lerp(start.y, end.y, progress);
       PVector moto = new PVector(nx, ny);
       
-      // Glow 3D para el segmento actual
       draw3DSegment(start, moto);
       
-      // Moto 3D con rastro corto
       float trailLen = 24;
       float segLen = dist(start.x, start.y, moto.x, moto.y);
       float t0 = max(0, segLen - trailLen) / segLen;
@@ -90,17 +79,14 @@ class TronLogo {
   }
 
   void draw3DSegment(PVector a, PVector b) {
-    // Efecto de glow 3D
     strokeWeight(18);
     stroke(0, 255, 255, 90 * glowIntensity);
     line(a.x, a.y, b.x, b.y);
     
-    // Línea principal 3D
     strokeWeight(8);
     stroke(180, 255, 255, 200 * glowIntensity);
     line(a.x, a.y, b.x, b.y);
     
-    // Efecto de profundidad
     strokeWeight(4);
     stroke(0, 255, 255, 50 * glowIntensity);
     line(a.x + 2, a.y + 2, b.x + 2, b.y + 2);

@@ -14,11 +14,7 @@ int lastColorIndex = -1;
 
 void setup() {
   size(600, 600, P3D);
-  // Centrar la ventana en la pantalla
-  //surface.setLocation((displayWidth - width) / 2, (displayHeight - height) / 2);
-  // O alternativamente, usar fullScreen() para pantalla completa
-  fullScreen(P3D);
-  
+  surface.setLocation((displayWidth - width) / 2, (displayHeight - height) / 2);
   logo = new TronLogo(width/2, height/2 - 60, 400);
   startButton = new StartButton(width/2, height/2 + 100, 180, 50, "INICIAR");
   espectadorButton = new MenuButton(width/2, height/2 - 50, 200, 60, "MODO ESPECTADOR");
@@ -76,11 +72,11 @@ void mousePressed() {
     estado = 2;
   } else if (estado == 2) {
     if (espectadorButton.isMouseOver()) {
-      estado = 3; // Modo espectador
+      estado = 3;
       setRandomColor();
       gameEspectador = new TronGameEspectador(motoColor);
     } else if (controladoButton.isMouseOver()) {
-      estado = 4; // Modo controlado
+      estado = 4;
       setRandomColor();
       gameControlado = new TronGameControlado(motoColor);
     }

@@ -19,7 +19,6 @@ class MenuButton {
     pushMatrix();
     translate(x, y, 0);
     
-    // Efecto de rotación
     rotateY(sin(time * 0.5) * 0.05);
     rotateX(sin(time * 0.3) * 0.02);
     
@@ -27,7 +26,6 @@ class MenuButton {
     textAlign(CENTER, CENTER);
     textSize(20);
     
-    // Efecto de glow 3D
     stroke(0, 255, 255, 150 * glowIntensity);
     strokeWeight(3);
     
@@ -38,7 +36,6 @@ class MenuButton {
       fill(0, 40, 60, 150 * glowIntensity);
     }
     
-    // Botón principal con profundidad
     rect(0, 0, w, h, 18);
     
     fill(0, 20, 30, 100);
@@ -49,7 +46,6 @@ class MenuButton {
     noStroke();
     text(label, 0, 0);
     
-    // Efecto de partículas alrededor del botón
     if (isMouseOver()) {
       for (int i = 0; i < 5; i++) {
         float px = random(-w/2, w/2);
